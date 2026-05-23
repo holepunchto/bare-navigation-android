@@ -1,0 +1,45 @@
+name: Publish
+on:
+  push:
+    tags:
+      - v*
+permissions:
+  id-token: write
+  contents: write
+jobs:
+  prebuild:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: android
+            arch: x64
+          - os: ubuntu-24.04
+            platform: android
+            arch: ia32
+          - os: ubuntu-24.04
+            platform: android
+            arch: arm64
+          - os: ubuntu-24.04
+            platform: android
+            arch: arm
+    runs-on: ${{ matrix.os }}
+    name: Build / ${{ matrix.platform }}-${{ matrix.arch }}
+    steps:
+      - uses: holepunchto/actions/bare-base@v1
+      - uses: holepunchto/actions/compile-prebuilds@v1
+        with:
+          platform: ${{ matrix.platform }}
+          arch: ${{ matrix.arch }}
+          flags: -D ANDROID_PLATFORM=android-34 -D ANDROID_STL=c++_shared
+          upload: true
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+    needs: prebuild
+    name: Publish
+    steps:
+      - uses: holepunchto/actions/node-base@v1
+      - uses: holepunchto/actions/download-prebuilds@v1
+      - uses: holepunchto/actions/publish@v1

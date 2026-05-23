@@ -1,0 +1,46 @@
+{
+  "name": "bare-navigation-android",
+  "version": "1.0.0",
+  "description": "Android back gesture/button handler for the Bare runtime",
+  "exports": {
+    "./package": "./package.json",
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "binding.cc",
+    "binding.js",
+    "CMakeLists.txt",
+    "android/",
+    "prebuilds"
+  ],
+  "addon": true,
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "prettier --check . && lunte",
+    "test": "brittle-bare --coverage test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/holepunchto/bare-navigation-android.git"
+  },
+  "author": "Holepunch",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/holepunchto/bare-navigation-android/issues"
+  },
+  "homepage": "https://github.com/holepunchto/bare-navigation-android#readme",
+  "dependencies": {
+    "bare-events": "^2.5.4"
+  },
+  "devDependencies": {
+    "brittle": "^3.4.0",
+    "cmake-android": "^0.1.4",
+    "cmake-bare": "^1.8.0",
+    "cmake-fetch": "^1.5.1",
+    "cmake-java": "^0.1.2",
+    "lunte": "^1.3.0",
+    "prettier": "^3.3.3",
+    "prettier-config-holepunch": "^2.0.0"
+  }
+}
