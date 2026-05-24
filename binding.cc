@@ -29,7 +29,7 @@ back_cb (js_env_t *env, js_value_t *fn, void *ctx, void *data) {
 }
 
 static void
-on_back_native (java_env_t env, java_object_t<"bare/navigation/android/BackHandlerBridge"> cls) {
+on_back_jni (JNIEnv *, jclass) {
   if (back_tsfn == NULL) return;
   js_call_threadsafe_function(back_tsfn, NULL, js_threadsafe_function_nonblocking);
 }
@@ -100,11 +100,14 @@ bare_navigation_android_exports (js_env_t *env, js_value_t *exports) {
     auto guard = maybe_env.has_value() ? std::move(*maybe_env) : jvm.attach_current_thread();
     JNIEnv *jni = guard;
 
-    auto bridge_cls = java_class_t<"bare/navigation/android/BackHandlerBridge">(jni);
+    jclass bridge_class = jni->FindClass("bare/navigation/android/BackHandlerBridge");
+    JNINativeMethod native_methods[] = {
+      {"nativeOnBack", "()V", (void *) on_back_jni}
+    };
+    jni->RegisterNatives(bridge_class, native_methods, 1);
 
-    bridge_cls.register_natives(
-      java_native_method_t<on_back_native>("nativeOnBack")
-    );
+    auto bridge_cls = java_class_t<"bare/navigation/android/BackHandlerBridge">(jni, bridge_class);
+    jni->DeleteLocalRef(bridge_class);
 
     auto app = get_application(jni);
 
