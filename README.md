@@ -4,7 +4,7 @@ Android back gesture/button handler for the [Bare](https://github.com/holepuncht
 
 Intercepts the Android system back gesture/button, prevents the OS default behaviour, and emits a JS `back` event. Once a `back` listener is registered the OS default is fully suppressed. Use `close()` to explicitly finish the Activity.
 
-Requires `minSdk 33`.
+Requires `minSdk 33` and `android:enableOnBackInvokedCallback="true"` in your manifest.
 
 ## Installation
 
@@ -12,12 +12,17 @@ Requires `minSdk 33`.
 npm install bare-navigation-android
 ```
 
-### Android project setup
+No manual Java setup required — the companion DEX is compiled and included in the prebuilds, and [`bare-link`](https://github.com/holepunchto/bare-link) picks it up automatically when packaging with [`bare-build`](https://github.com/holepunchto/bare-build).
 
-Copy `android/BackHandlerBridge.java` into your Android app's Java source set, preserving the package path:
+### Android manifest
 
-```
-app/src/main/java/bare/navigation/android/BackHandlerBridge.java
+Add `enableOnBackInvokedCallback` to your `<application>` tag. Without it, edge-swipe gestures are not intercepted (button presses still work):
+
+```xml
+<uses-sdk android:minSdkVersion="33" android:targetSdkVersion="36" />
+<application
+    android:enableOnBackInvokedCallback="true"
+    ...>
 ```
 
 ## Usage
@@ -56,12 +61,30 @@ Finish the Android Activity. This is the only way to close the app once a back l
 
 ## Building
 
-Uses [bare-make](https://github.com/holepunchto/bare-make) for compiling the native bindings. Build for Android only:
+Uses [bare-make](https://github.com/holepunchto/bare-make) for compiling the native bindings. The prebuilds also include a companion DEX for the `BackHandlerBridge` Java helper.
+
+### Native binding
 
 ```sh
-bare-make generate -D ANDROID_PLATFORM=android-34 -D ANDROID_STL=c++_shared
+bare-make generate --platform android --arch arm64 -D ANDROID_PLATFORM=android-34 -D ANDROID_STL=c++_shared
 bare-make build
 bare-make install
+```
+
+### Companion DEX
+
+After building, compile `BackHandlerBridge.java` to DEX and place it in the prebuild companion directory:
+
+```sh
+javac -source 11 -target 11 \
+  -cp $ANDROID_HOME/platforms/android-34/android.jar \
+  android/BackHandlerBridge.java -d /tmp/bnh-classes
+
+d8 --release \
+  --lib $ANDROID_HOME/platforms/android-34/android.jar \
+  --output prebuilds/android-arm64/bare-navigation-android \
+  /tmp/bnh-classes/bare/navigation/android/BackHandlerBridge.class \
+  "/tmp/bnh-classes/bare/navigation/android/BackHandlerBridge\$1.class"
 ```
 
 ## License
