@@ -1,6 +1,6 @@
 {
   "name": "bare-navigation-android",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Android back gesture/button handler for the Bare runtime",
   "exports": {
     "./package": "./package.json",
