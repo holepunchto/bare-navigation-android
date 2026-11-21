@@ -41,3 +41,17 @@ set(CMAKE_JAVA_COMPILE_FLAGS --release 17)
 
 bare_target(target)
 bare_module_target("." _module NAME _name)
+
+add_dex(
+  bare_navigation_android_classes
+  SOURCES
+    android/BackHandlerBridge.java
+  INCLUDE_JARS
+    ${android_jar}
+)
+
+install(
+  FILES
+    $<TARGET_PROPERTY:bare_navigation_android_classes,DEX_FILE>
+  DESTINATION ${target}/${_name}
+)
